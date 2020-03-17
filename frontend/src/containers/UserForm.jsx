@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import FormComponent from "../layouts/FormComponent";
 import validator from "../utils/validator";
+import axios from "axios";
 
 export class UserForm extends Component {
   state = {
     form: {
       email: {
+        type: "text",
         value: "",
         name: "email",
         id: "email",
@@ -13,10 +15,11 @@ export class UserForm extends Component {
         errors: [],
         validations: {
           required: true,
-          regex: /\w@(\w\.)+\w/
+          regex: /\w@\w/
         }
       },
       pwd: {
+        type: "password",
         value: "",
         touched: false,
         name: "pwd",
@@ -49,22 +52,35 @@ export class UserForm extends Component {
     this.setState({ form });
   };
 
+  submitForm = async event => {
+    const { email, pwd } = event.target;
+    const form = this.state.form;
+    const data = {
+      email: form[email].value,
+      pwd: form[pwd].value
+    };
+    await axios.post("http://localhost:38001/users/session", data);
+    alert("foi");
+  };
+
   render() {
     return (
       <div>
         <form>
-          {Object.values(this.state.form).map(input => (
-            <div>
+          {Object.keys(this.state.form).map(key => {
+            const input = this.state.form[key];
+            return (
               <FormComponent
                 change={this.handleInput}
                 name={input.name}
                 id={input.id}
+                type={input.type}
                 errors={input.errors}
                 touched={input.touched}
               />
-            </div>
-          ))}
-          <button>Submeter</button>
+            );
+          })}
+          <button onSubmit={this.submitForm}>Submeter</button>
         </form>
       </div>
     );
